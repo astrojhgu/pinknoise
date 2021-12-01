@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 extern crate pinknoise;
 use rand::{
     thread_rng
