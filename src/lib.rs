@@ -22,16 +22,12 @@ use rand::{
 
 
 fn which_to_roll(mut n: usize)->usize{
-    if n==0{
-        0
-    }else{
-        let mut x=0;
-        while n&1==0{
-            x+=1;
-            n>>=1;
-        }
-        x
+    let mut x=0;
+    while n&1==0{
+        x+=1;
+        n>>=1;
     }
+    x
 }
 
 
