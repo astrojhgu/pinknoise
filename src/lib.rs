@@ -64,7 +64,7 @@ where T:PrimInt+Copy+SampleUniform+Sum+Signed
     pub fn get<R>(&mut self, rng: &mut R)->T
     where  R: Rng
     {
-        for i in 0..2{
+        for _i in 0..2{
             self.cnt+=1;
             let n=which_to_roll(self.cnt);
             if n<N{

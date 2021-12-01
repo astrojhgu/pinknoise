@@ -10,11 +10,8 @@ use pinknoise::{
 fn main() {
     let mut rng=thread_rng();
     let mut vmpn=VmPinkRGN::<i16, 48>::new(16, &mut rng);
-    for i in 0..(1_u64<<32){
-        if i%(1000000)==0{
-            println!("{}", i as f64/(1_u64<<32) as f64);
-        }
+    for i in 0..65536{
         let x=vmpn.get(&mut rng);
-        //println!("{}", x);
+        println!("{}", x);
     }
 }
