@@ -20,7 +20,7 @@ fn which_to_roll(mut n: usize) -> usize {
 }
 
 #[cfg(target_arch = "x86_64")]
-fn which_to_roll(mut n: usize) -> usize {
+fn which_to_roll(n: usize) -> usize {
     let ret: u64;
     unsafe {
         asm!(
