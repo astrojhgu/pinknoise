@@ -6,7 +6,7 @@ use rand::thread_rng;
 
 use pinknoise::{
     VmPinkRng
-    , RandVmPinkRng
+    //, RandVmPinkRng
 };
 
 fn main() {

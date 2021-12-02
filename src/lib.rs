@@ -1,4 +1,7 @@
 #![feature(asm)]
+
+
+
 use serde::{Deserialize, Serialize};
 use std::iter::Sum;
 
@@ -9,8 +12,9 @@ use rand::{distributions::uniform::SampleUniform, Rng};
 use rand_distr::{Distribution, StandardNormal};
 
 
-#[cfg(target_arch = "arm")]
+#[cfg(other)]
 fn which_to_roll(mut n: usize) -> usize {
+    warn!("Warning not using optimized code");
     let mut x = 0;
     while n & 1 == 0 {
         x += 1;
@@ -21,6 +25,7 @@ fn which_to_roll(mut n: usize) -> usize {
 
 #[cfg(target_arch = "x86_64")]
 fn which_to_roll(n: usize) -> usize {
+
     let ret: u64;
     unsafe {
         asm!(
