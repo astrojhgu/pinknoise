@@ -19,9 +19,9 @@ use rand_distr::{Distribution, StandardNormal};
 
 #[cfg(other)]
 fn which_to_roll(mut n: usize) -> usize {
-    Diagnostic::new(Level::Warning,"a")
-    .warning("arm code")
-    .emit();
+    //Diagnostic::new(Level::Warning,"a")
+    //.warning("arm code")
+    //.emit();
     let mut x = 0;
     while n & 1 == 0 {
         x += 1;
@@ -32,9 +32,9 @@ fn which_to_roll(mut n: usize) -> usize {
 
 #[cfg(target_arch = "x86_64")]
 fn which_to_roll(n: usize) -> usize {
-    Diagnostic::new(Level::Error,"a")
-    .warning("x86-64 code")
-    .emit();
+    //Diagnostic::new(Level::Error,"a")
+    //.warning("x86-64 code")
+    //.emit();
 
     let ret: u64;
     unsafe {
