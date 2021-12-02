@@ -9,3 +9,5 @@ edition = "2021"
 num='0.4.0'
 rand='0.8.4'
 rand_distr='0.4.2'
+serde_yaml = '0.8.21'
+serde={version='1.0.130', features = ['derive']}
