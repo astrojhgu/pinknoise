@@ -3,7 +3,10 @@
 extern crate pinknoise;
 use rand::thread_rng;
 
-use pinknoise::VmPinkRng;
+use pinknoise::{
+    VmPinkRng
+    , RandVmPinkRng
+};
 
 fn main() {
     let mut rng = thread_rng();

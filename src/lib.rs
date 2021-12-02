@@ -70,3 +70,57 @@ where
         self.state.iter().cloned().sum::<T>() * self.norm
     }
 }
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct RandVmPinkRng<T>
+where
+    T: Copy,
+{
+    order: usize,
+    state: Vec<T>,
+    norm: T,
+}
+
+impl<T> RandVmPinkRng<T>
+where
+    T: Copy + SampleUniform + Sum + Float,
+    StandardNormal: Distribution<T>,
+{
+    pub fn from_state(state: &[T]) -> Self {
+        Self {
+            order: state.len(),
+            state: Vec::from(state),
+            norm: T::one() / T::from(state.len()).unwrap().sqrt(),
+        }
+    }
+
+    pub fn new<R>(order: usize, rng: &mut R) -> Self
+    where
+        R: Rng,
+    {
+        let mut state = vec![T::zero(); order];
+        state
+            .iter_mut()
+            .for_each(|x| *x = rng.sample(StandardNormal));
+        Self::from_state(&state)
+    }
+
+    pub fn from_zero(order: usize) -> Self {
+        Self::from_state(&vec![T::zero(); order])
+    }
+
+    pub fn get<R>(&mut self, rng: &mut R) -> T
+    where
+        R: Rng,
+    {
+        for _i in 0..2 {
+            for j in 0..self.order{
+                if rng.gen_range(0..(1_usize<<(j+1)))==0{
+                    self.state[j]=rng.sample(StandardNormal);
+                }
+            }
+        }
+        self.state.iter().cloned().sum::<T>() * self.norm
+    }
+}
