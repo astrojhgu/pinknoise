@@ -1,3 +1,4 @@
+#![feature(asm)]
 #![allow(unused_variables)]
 
 extern crate pinknoise;

@@ -1,3 +1,4 @@
+#![feature(asm)]
 use serde::{Deserialize, Serialize};
 use std::iter::Sum;
 
@@ -7,6 +8,8 @@ use rand::{distributions::uniform::SampleUniform, Rng};
 
 use rand_distr::{Distribution, StandardNormal};
 
+
+#[cfg(target_arch = "arm")]
 fn which_to_roll(mut n: usize) -> usize {
     let mut x = 0;
     while n & 1 == 0 {
@@ -14,6 +17,19 @@ fn which_to_roll(mut n: usize) -> usize {
         n >>= 1;
     }
     x
+}
+
+#[cfg(target_arch = "x86_64")]
+fn which_to_roll(mut n: usize) -> usize {
+    let ret: u64;
+    unsafe {
+        asm!(
+            "tzcnt rax, rax",
+            in("rax") n as u64, // syscall number
+            lateout("rax") ret, // clobbered by syscalls
+        );
+    }
+    ret as usize
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
