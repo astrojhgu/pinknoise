@@ -6,12 +6,12 @@ use rand::{
 };
 
 use pinknoise::{
-    VmPinkRGN
+    VmPinkRng
 };
 
 fn main() {
     let mut rng=thread_rng();
-    let mut vmpn=VmPinkRGN::<i16, 48>::new(16, &mut rng);
+    let mut vmpn=VmPinkRng::<f64, 48>::new(&mut rng);
     for i in 0..65536{
         let x=vmpn.get(&mut rng);
         println!("{}", x);

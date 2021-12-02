@@ -6,8 +6,7 @@ use std::{
 
 use num::{
     traits::{
-        PrimInt
-        , Signed
+        Float
     }
 };
 
@@ -21,6 +20,11 @@ use rand::{
 };
 
 
+use rand_distr::{
+    StandardNormal
+    , Distribution
+};
+
 fn which_to_roll(mut n: usize)->usize{
     let mut x=0;
     while n&1==0{
@@ -32,29 +36,37 @@ fn which_to_roll(mut n: usize)->usize{
 
 
 #[derive(Clone, Copy)]
-pub struct VmPinkRGN<T,const N:usize>
+pub struct VmPinkRng<T,const N:usize>
 where T: Copy
 {
     state: [T;N],
-    dice_max: T,
-    pub max_output: T,
     cnt: usize,
+    norm: T,
 }
 
-impl<T, const N: usize> VmPinkRGN<T, N>
-where T:PrimInt+Copy+SampleUniform+Sum+Signed
+impl<T, const N: usize> VmPinkRng<T, N>
+where T:Copy+SampleUniform+Sum+Float
+, StandardNormal: Distribution<T>
 {
-    pub fn new<R>(dice_max: T, rng: &mut R)->VmPinkRGN<T, N>
+    pub fn from_state(state: [T; N])->VmPinkRng<T, N>{
+        VmPinkRng{
+            state, 
+            cnt: 0, 
+            norm:T::one()/T::from(N).unwrap().sqrt()
+        }
+    }
+
+
+    pub fn new<R>(rng: &mut R)->VmPinkRng<T, N>
     where R: Rng
     {
         let mut state=[T::zero();N];
-        state.iter_mut().for_each(|x| *x=rng.gen_range(T::zero()..dice_max));
-        VmPinkRGN{
-            state, 
-            dice_max, 
-            max_output: T::from(N).unwrap()*dice_max,
-            cnt: 0
-        }
+        state.iter_mut().for_each(|x| *x=rng.sample(StandardNormal));
+        Self::from_state([T::zero();N])
+    }
+
+    pub fn from_zero()->VmPinkRng<T, N>{
+        Self::from_state([T::zero();N])
     }
 
     pub fn get<R>(&mut self, rng: &mut R)->T
@@ -64,9 +76,9 @@ where T:PrimInt+Copy+SampleUniform+Sum+Signed
             self.cnt+=1;
             let n=which_to_roll(self.cnt);
             if n<N{
-                self.state[n]=rng.gen_range(T::zero()..self.dice_max);
+                self.state[n]=rng.sample(StandardNormal);
             }    
         }
-        self.state.iter().cloned().sum::<T>()-(self.max_output>>1)
+        self.state.iter().cloned().sum::<T>()*self.norm
     }
 }
