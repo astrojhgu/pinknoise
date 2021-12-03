@@ -13,31 +13,10 @@ use rand::{distributions::uniform::SampleUniform, Rng};
 use rand_distr::{Distribution, StandardNormal};
 
 
-#[cfg(other)]
-fn which_to_roll(mut n: usize) -> usize {
-    //Diagnostic::new(Level::Warning,"a")
-    //.warning("arm code")
-    //.emit();
-    let mut x = 0;
-    while n & 1 == 0 {
-        x += 1;
-        n >>= 1;
-    }
-    x
-}
 
-#[cfg(target_arch = "x86_64")]
 #[inline]
 fn which_to_roll(n: usize) -> usize {
-    let ret: u64;
-    unsafe {
-        asm!(
-            "tzcnt rax, rax",
-            in("rax") n as u64, // syscall number
-            lateout("rax") ret, // clobbered by syscalls
-        );
-    }
-    ret as usize
+    return n.trailing_zeros() as usize
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
