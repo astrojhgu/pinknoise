@@ -1,10 +1,6 @@
 #![feature(asm)]
 #![feature(proc_macro_diagnostic)]  
 extern crate proc_macro;
-use proc_macro::{
-    Diagnostic
-    , Level
-};
 
 
 use serde::{Deserialize, Serialize};
@@ -31,11 +27,8 @@ fn which_to_roll(mut n: usize) -> usize {
 }
 
 #[cfg(target_arch = "x86_64")]
+#[inline]
 fn which_to_roll(n: usize) -> usize {
-    //Diagnostic::new(Level::Error,"a")
-    //.warning("x86-64 code")
-    //.emit();
-
     let ret: u64;
     unsafe {
         asm!(
