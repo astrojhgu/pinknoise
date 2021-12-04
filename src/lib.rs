@@ -32,7 +32,7 @@ where
 
 impl<T> VmPinkRng<T>
 where
-    T: Copy + SampleUniform + Sum + Float,
+    T: Copy + SampleUniform + Sum + Float + Send + Sync,
     StandardNormal: Distribution<T>,
 {
     pub fn from_state(state: &[T]) -> VmPinkRng<T> {
