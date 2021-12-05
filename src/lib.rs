@@ -83,6 +83,7 @@ where
     order: usize,
     state: Vec<T>,
     norm: T,
+    lz_upper: u32,
 }
 
 impl<T> RandVmPinkRng<T>
@@ -91,10 +92,12 @@ where
     StandardNormal: Distribution<T>,
 {
     pub fn from_state(state: &[T]) -> Self {
+        let order=state.len();
         Self {
-            order: state.len(),
+            order,
             state: Vec::from(state),
-            norm: T::one() / T::from(state.len()).unwrap().sqrt(),
+            norm: T::one() / T::from(order).unwrap().sqrt(),
+            lz_upper: (1_usize<<order-1).leading_zeros()
         }
     }
 
@@ -117,12 +120,10 @@ where
     where
         R: Rng,
     {
-        for _i in 0..2 {
-            for j in 0..self.order{
-                if rng.gen_range(0..(1_usize<<(j+1)))==0{
-                    self.state[j]=rng.sample(StandardNormal);
-                }
-            }
+        for _i in 0..1 {
+            let x=rng.gen_range(1_usize..(1_usize<<self.order));
+            let n=(x.leading_zeros()-self.lz_upper) as usize;
+            self.state[n]=rng.sample(StandardNormal);
         }
         self.state.iter().cloned().sum::<T>() * self.norm
     }

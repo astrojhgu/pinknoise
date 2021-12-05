@@ -2,7 +2,10 @@
 #![allow(unused_variables)]
 
 extern crate pinknoise;
-use rand::thread_rng;
+use rand::{
+    thread_rng
+    , Rng
+};
 
 use pinknoise::{
     VmPinkRng
@@ -11,9 +14,11 @@ use pinknoise::{
 
 fn main() {
     let mut rng = thread_rng();
-    let mut vmpn = VmPinkRng::<f64>::new(48, &mut rng);
-    for i in 0..65536 {
-        let x = vmpn.get(&mut rng);
-        println!("{}", x);
+    let order=4;
+    for i in 0..65536*8{
+        let x=rng.gen_range(1_usize..(1_usize<<order));
+        let z=(x.leading_zeros()-(1_usize<<order-1).leading_zeros());
+        println!("{} {}", z,x);
     }
+    
 }
