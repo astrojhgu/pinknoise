@@ -17,7 +17,9 @@ use std::{
 
 use pinknoise::{
     VmPinkRng
+    , VmPinkRngI
     , RandVmPinkRng
+    , RandVmPinkRngI
 };
 
 use rand::{
