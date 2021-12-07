@@ -210,6 +210,7 @@ where
         self.state[n]=rng.sample(StandardNormal);
         self.update_partial_sum(n);
         let result=(self.partial_sum[0]+self.state[0])*self.norm;
+        //let result=self.state.iter().cloned().sum::<T>()*self.norm;
         //println!("{:?} {:?} {:?}",n, result, r1);
         result
     }
