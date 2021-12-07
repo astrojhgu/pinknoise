@@ -13,12 +13,6 @@ use pinknoise::{
 };
 
 fn main() {
-    let mut rng = thread_rng();
-    let order=4;
-    for i in 0..65536*8{
-        let x=rng.gen_range(1_usize..(1_usize<<order));
-        let z=(x.leading_zeros()-(1_usize<<order-1).leading_zeros());
-        println!("{} {}", z,x);
-    }
-    
+    let a:Vec<_>=(0..16).collect();
+    a.iter().rev().skip(1).for_each(|x|{println!("{}",x)});
 }

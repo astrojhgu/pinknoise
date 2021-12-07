@@ -4,7 +4,7 @@ extern crate proc_macro;
 
 
 use serde::{Deserialize, Serialize};
-use std::iter::Sum;
+use std::{iter::Sum, fmt::Debug};
 
 use num::traits::Float;
 
@@ -140,23 +140,32 @@ where
     T: Copy,
 {
     order: usize,
-    state: Vec<T>,
+    pub state: Vec<T>,
+    pub partial_sum: Vec<T>,
     norm: T,
     lz_upper: u32,
 }
 
 impl<T> RandVmPinkRng<T>
 where
-    T: Copy + SampleUniform + Sum + Float,
+    T: Copy + SampleUniform + Sum + Float+std::fmt::Debug,
     StandardNormal: Distribution<T>,
 {
     pub fn from_state(state: &[T]) -> Self {
         let order=state.len();
+        let mut partial_sum=vec![T::zero(); order];
+        let mut previous=T::zero();
+        for (ps, &x) in partial_sum[..order-1].iter_mut().rev().zip(state[..order].iter().rev()){
+            *ps=previous+x;
+            previous=*ps;
+        }
+
         Self {
             order,
             state: Vec::from(state),
             norm: T::one() / T::from(order).unwrap().sqrt(),
-            lz_upper: (1_usize<<order-1).leading_zeros()
+            lz_upper: (1_usize<<order-1).leading_zeros(),
+            partial_sum
         }
     }
 
@@ -165,6 +174,7 @@ where
         R: Rng,
     {
         let mut state = vec![T::zero(); order];
+        
         state
             .iter_mut()
             .for_each(|x| *x = rng.sample(StandardNormal));
@@ -175,16 +185,33 @@ where
         Self::from_state(&vec![T::zero(); order])
     }
 
+    #[inline]
+    pub fn update_partial_sum(&mut self, n:usize){
+        let mut previous=self.partial_sum[n];
+        
+        for (ps, &x) in self.partial_sum[..n].iter_mut().rev().zip(self.state[..=n].iter().rev()){
+            *ps=previous+x;
+            previous=*ps;
+        }
+        /*
+        let x0=self.partial_sum[n];
+        self.partial_sum[..n].iter_mut().rev().zip(self.state[..=n].iter().rev().scan(x0, |a,b| {
+            *a=*a + *b;
+            Some(*a)
+        })).for_each(|(a,b)|{*a=b});*/
+    }
+
     pub fn get<R>(&mut self, rng: &mut R) -> T
     where
         R: Rng,
     {
-        for _i in 0..1 {
-            let x=rng.gen_range(1_usize..(1_usize<<self.order));
-            let n=(x.leading_zeros()-self.lz_upper) as usize;
-            self.state[n]=rng.sample(StandardNormal);
-        }
-        self.state.iter().cloned().sum::<T>() * self.norm
+        let x=rng.gen_range(1_usize..(1_usize<<self.order));
+        let n=(x.leading_zeros()-self.lz_upper) as usize;
+        self.state[n]=rng.sample(StandardNormal);
+        self.update_partial_sum(n);
+        let result=(self.partial_sum[0]+self.state[0])*self.norm;
+        //println!("{:?} {:?} {:?}",n, result, r1);
+        result
     }
 }
 

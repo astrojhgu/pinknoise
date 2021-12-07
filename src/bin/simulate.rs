@@ -15,6 +15,10 @@ use std::{
     }
 };
 
+use serde_yaml::{
+    to_writer
+};
+
 use pinknoise::{
     VmPinkRng
     , VmPinkRngI
@@ -53,13 +57,13 @@ fn main()->Result<(), std::io::Error>{
         .long("out")
         .takes_value(true)
         .value_name("outfile")
-        .required(true)
+        .required(false)
         .about("output file")
     )
     .get_matches();
 
     let length=matches.value_of("length").unwrap().parse::<usize>().unwrap();
-    let mut outfile=BufWriter::new(File::create(matches.value_of("output").unwrap())?);
+    let mut outfile:Option<BufWriter<File>>=matches.value_of("output").and_then(|fname| {Some(BufWriter::new(File::create(fname).unwrap()))});
     let order=matches.value_of("order").unwrap().parse::<usize>().unwrap();
     let mut rng=thread_rng();
     let mut vmpn=RandVmPinkRng::<f64>::new(order, &mut rng);
@@ -67,8 +71,15 @@ fn main()->Result<(), std::io::Error>{
     for _ in 0..length{
         let x=vmpn.get(&mut rng);
         let bytes=x.to_le_bytes();
-        outfile.write(&bytes)?;
+        //outfile.write(&bytes)?;
+        match outfile{
+            Some(ref mut x)=>{x.write(&bytes).unwrap();}
+            _=>{}
+        }
     }
+
+    let mut state_file=File::create("state.yaml").unwrap();
+    to_writer(&mut state_file, &vmpn).unwrap();
 
     Ok(())
 }
